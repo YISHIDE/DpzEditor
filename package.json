@@ -1,12 +1,12 @@
 {
-  "name": "wangeditor",
-  "title": "wangEditor",
+  "name": "DpzEditor",
+  "title": "DpzEditor",
   "version": "3.1.1",
   "description": "wangEditor - 基于javascript和css开发的 web 富文本编辑器， 轻量、简洁、易用、开源免费",
-  "homepage": "http://wangeditor.github.io/",
+  "homepage": "http://YISHIDE.github.io/",
   "author": {
-    "name": "wangfupeng1988",
-    "url": "https://github.com/wangfupeng1988"
+    "name": "YISHIDE",
+    "url": "https://github.com/YISHIDE/DpzEditor"
   },
   "keywords": [
     "wangEditor",
@@ -23,7 +23,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/wangfupeng1988/wangEditor"
+      "url": "https://github.com/YISHIDE/DpzEditor"
     }
   ],
   "scripts": {
