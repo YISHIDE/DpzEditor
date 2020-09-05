@@ -9,6 +9,7 @@ const config = {
         'head',
         'bold',
         'fontSize',
+        'lineFontSize',
         'fontName',
         'italic',
         'underline',
