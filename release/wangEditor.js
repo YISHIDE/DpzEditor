@@ -2895,31 +2895,7 @@ function LineFontSize(editor) {
         width: 160,
         $title: $('<p>段落字号</p>'),
         type: 'list', // droplist 以列表形式展示
-        list: [{
-            $elem: $('<span style="font-size: 12px;">12px</span>'),
-            value: '12px'
-        }, {
-            $elem: $('<span style="font-size: 14px;">14px</span>'),
-            value: '14px'
-        }, {
-            $elem: $('<span style="font-size: 16px;">16px</span>'),
-            value: '16px'
-        }, {
-            $elem: $('<span style="font-size: 18px;">18px</span>'),
-            value: '18px'
-        }, {
-            $elem: $('<span style="font-size: 20px;">20px</span>'),
-            value: '20px'
-        }, {
-            $elem: $('<span style="font-size: 22px;">22px</span>'),
-            value: '22px'
-        }, {
-            $elem: $('<span style="font-size: 24px;">24px</span>'),
-            value: '24px'
-        }, {
-            $elem: $('<span style="font-size:26px;">26px</span>'),
-            value: '26px'
-        }],
+        list: [{ $elem: $('<span style="font-size: x-small;">x-small</span>'), value: [1, 'x-small'] }, { $elem: $('<span style="font-size: small;">small</span>'), value: [2, 'small'] }, { $elem: $('<span>normal</span>'), value: [3, 'normal'] }, { $elem: $('<span style="font-size: large;">large</span>'), value: [4, 'large'] }, { $elem: $('<span style="font-size: x-large;">x-large</span>'), value: [5, 'x-large'] }, { $elem: $('<span style="font-size: xx-large;">xx-large</span>'), value: [6, 'xx-large'] }],
         onClick: function onClick(value) {
             // 注意 this 是指向当前的 FontSize 对象
             _this._command(value);
@@ -2935,6 +2911,11 @@ LineFontSize.prototype = {
     _command: function _command(value) {
         var editor = this.editor;
         // 使用 styleWithCSS
+        var isSeleEmpty = editor.selection.isSelectionEmpty();
+        if (!isSeleEmpty) {
+            editor.cmd.do('fontSize', value[0]);
+            return;
+        }
         if (!editor._useStyleWithCSS) {
             document.execCommand('styleWithCSS', null, true);
             editor._useStyleWithCSS = true;
@@ -2958,7 +2939,7 @@ LineFontSize.prototype = {
             //     $parent = $parent.parentNode;
             // }
             // console.log($parent)
-            $parent.style.fontSize = value;
+            $parent.style.fontSize = value[1];
             //1.1.1 一行的选区也可能有嵌套元素
             var nodeArray = new Array();
             getNodeToArray($parent, nodeArray);
@@ -2971,7 +2952,7 @@ LineFontSize.prototype = {
                 for (var _iterator = nodeArray[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                     var node = _step.value;
 
-                    node.style.fontSize = value;
+                    node.style.fontSize = value[1];
                 }
             } catch (err) {
                 _didIteratorError = true;
@@ -3028,7 +3009,7 @@ LineFontSize.prototype = {
                 for (var _iterator2 = rangeNodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                     node = _step2.value;
 
-                    node.style.fontSize = value;
+                    node.style.fontSize = value[1];
                 }
             } catch (err) {
                 _didIteratorError2 = true;
