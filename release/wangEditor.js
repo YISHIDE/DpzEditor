@@ -799,32 +799,8 @@ function replaceHtmlSymbol(html) {
 function isFunction(fn) {
     return typeof fn === 'function';
 }
-function isContentditor(node) {
-    console.log(node.getAttribute('contenteditable'));
-    if (node.getAttribute('contenteditable') == 'true') {
-        return true;
-    }
-    return false;
-}
+
 //递归获取所有子节点
-function getNodeToArray(node, sum) {
-    if (node.nodeType === 1) {
-        sum.push(node);
-    }
-    var children = node.childNodes;
-    for (var i = 0; i < children.length; i++) {
-        getNodeToArray(children[i], sum);
-    }
-}
-function isDOMList$1(selector) {
-    if (!selector) {
-        return false;
-    }
-    if (selector instanceof HTMLCollection || selector instanceof NodeList) {
-        return true;
-    }
-    return false;
-}
 
 /*
     bold-menu
@@ -2893,9 +2869,9 @@ function LineFontSize(editor) {
     // 初始化 droplist
     this.droplist = new DropList(this, {
         width: 160,
-        $title: $('<p>段落字号</p>'),
+        $title: $('<p>字号</p>'),
         type: 'list', // droplist 以列表形式展示
-        list: [{ $elem: $('<span style="font-size: x-small;">x-small</span>'), value: [1, 'x-small'] }, { $elem: $('<span style="font-size: small;">small</span>'), value: [2, 'small'] }, { $elem: $('<span>normal</span>'), value: [3, 'normal'] }, { $elem: $('<span style="font-size: large;">large</span>'), value: [4, 'large'] }, { $elem: $('<span style="font-size: x-large;">x-large</span>'), value: [5, 'x-large'] }, { $elem: $('<span style="font-size: xx-large;">xx-large</span>'), value: [6, 'xx-large'] }],
+        list: [{ $elem: $('<span style="font-size: x-small;">x-small</span>'), value: [1, 'x-small'] }, { $elem: $('<span style="font-size: small;">small</span>'), value: [2, 'small'] }, { $elem: $('<span>normal</span>'), value: [3, '16px'] }, { $elem: $('<span style="font-size: large;">large</span>'), value: [4, 'large'] }, { $elem: $('<span style="font-size: x-large;">x-large</span>'), value: [5, 'x-large'] }, { $elem: $('<span style="font-size: xx-large;">xx-large</span>'), value: [6, 'xx-large'] }],
         onClick: function onClick(value) {
             // 注意 this 是指向当前的 FontSize 对象
             _this._command(value);
@@ -2927,105 +2903,80 @@ LineFontSize.prototype = {
         }
 
         // 恢复选取
-        editor.selection.restoreSelection();
+        // editor.selection.restoreSelection()
+        var $parent = editor.selection.getSelectionContainerElem()[0];
+        // console.log($parent.nodeName, 444)
+        if ($parent.nodeName === 'SPAN') {
+            // console.log($parent.innerHTML)
+            if ($parent.innerHTML.length == 1) {
+                $parent.parentNode.removeChild($parent);
+            }
+            var p = document.createElement('span');
+            p.style.fontSize = value[1];
+        } else {
+            p = document.createElement('span');
+            p.style.fontSize = value[1];
+        }
+        // console.log(editor.selection.getSelectionContainerElem()[0])
+
+        // p.innerHTML =`<span style='font-size:16px'></span>`
+        // $parent.append(p)
+        // console.log(editor)
+        editor.selection.createElementRange(p);
 
         //1. 处理选区节点样式
-        var $parent = editor.selection.getSelectionContainerElem()[0];
-        console.log($parent);
-        //1.1 如果选区只有一行
-        if (isDOMList$1($parent) === false && $parent.nodeType === 1 && isContentditor($parent) == false) {
-            // while ($parent.nodeName != 'P') {
-            //     //提升节点至外层p段落
-            //     $parent = $parent.parentNode;
-            // }
-            // console.log($parent)
-            $parent.style.fontSize = value[1];
-            //1.1.1 一行的选区也可能有嵌套元素
-            var nodeArray = new Array();
-            getNodeToArray($parent, nodeArray);
-            nodeArray.shift();
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = nodeArray[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var node = _step.value;
-
-                    node.style.fontSize = value[1];
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-        } else {
-            //1.2 如果选区有多行
-            var $start = editor.selection.getSelectionStartElem()[0];
-            var $end = editor.selection.getSelectionEndElem()[0];
-
-            var startNodeIndex;
-            var endNodeIndex;
-
-            //获取编辑区域下的所有节点
-            nodeArray = new Array();
-            getNodeToArray($parent, nodeArray);
-            nodeArray.shift();
-
-            //1.3 处理选区内的节点及其子节点
-            var $pNodes = nodeArray;
-            console.log($pNodes);
-            for (var i = 0; i < $pNodes.length; i++) {
-                if ($pNodes[i] == $start) {
-                    startNodeIndex = i;
-                    break;
-                }
-            }
-            for (i = 0; i < $pNodes.length; i++) {
-                if ($pNodes[i] == $end) {
-                    endNodeIndex = i;
-                    break;
-                }
-            }
-            var rangeNodes = new Array();
-            for (i = startNodeIndex; i <= endNodeIndex; i++) {
-                rangeNodes.push($pNodes[i]);
-            }
-
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = rangeNodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    node = _step2.value;
-
-                    node.style.fontSize = value[1];
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
-            }
-        }
+        // var $parent = editor.selection.getSelectionContainerElem()[0]
+        // //1.1 如果选区只有一行
+        // if (isDOMList($parent) === false && $parent.nodeType === 1 && isContentditor($parent) == false) {
+        //     // while ($parent.nodeName != 'P') {
+        //     //     //提升节点至外层p段落
+        //     //     $parent = $parent.parentNode;
+        //     // }
+        //     // console.log($parent)
+        //     $parent.style.fontSize = value[1]
+        //     //1.1.1 一行的选区也可能有嵌套元素
+        //     var nodeArray = new Array()
+        //     getNodeToArray($parent, nodeArray)
+        //     nodeArray.shift()
+        //     for (var node of nodeArray) {
+        //         node.style.fontSize = value[1]
+        //     }
+        // } else {
+        //     //1.2 如果选区有多行
+        //     var $start = editor.selection.getSelectionStartElem()[0]
+        //     var $end = editor.selection.getSelectionEndElem()[0]
+        //
+        //     var startNodeIndex
+        //     var endNodeIndex
+        //
+        //     //获取编辑区域下的所有节点
+        //     nodeArray = new Array()
+        //     getNodeToArray($parent, nodeArray)
+        //     nodeArray.shift()
+        //
+        //     //1.3 处理选区内的节点及其子节点
+        //     var $pNodes = nodeArray
+        //     for (var i = 0; i < $pNodes.length; i++) {
+        //         if ($pNodes[i] == $start) {
+        //             startNodeIndex = i
+        //             break
+        //         }
+        //     }
+        //     for (i = 0; i < $pNodes.length; i++) {
+        //         if ($pNodes[i] == $end) {
+        //             endNodeIndex = i
+        //             break
+        //         }
+        //     }
+        //     var rangeNodes = new Array()
+        //     for (i = startNodeIndex; i <= endNodeIndex; i++) {
+        //         rangeNodes.push($pNodes[i])
+        //     }
+        //
+        //     for (node of rangeNodes) {
+        //         node.style.fontSize = value[1]
+        //     }
+        // }
 
         // 修改菜单状态
         editor.menus.changeActive();
@@ -4069,6 +4020,40 @@ API.prototype = {
         selection.addRange(this._currentRange);
     },
 
+    createElementRange: function createElementRange(ele) {
+        var editor = this.editor;
+        var range = this.getRange();
+        var $elem = void 0;
+
+        if (!range) {
+            // 当前无 range
+            return;
+        }
+        if (!this.isSelectionEmpty()) {
+            // 当前选区必须没有内容才可以
+            return;
+        }
+
+        try {
+            ele.innerHTML = '&#8203;';
+            // 目前只支持 webkit 内核
+            if (UA.isWebkit()) {
+                // 插入 &#8203
+                // console.log(ele.outerHTML, 'outerHTML')
+                editor.cmd.do('insertHTML', ele.outerHTML);
+                // 修改 offset 位置
+                range.setEnd(range.endContainer, range.endOffset + 1);
+                // 存储
+                this.saveRange(range);
+            } else {
+                // $elem = $('<strong>&#8203;</strong>')
+                editor.cmd.do('insertElem', [ele]);
+                this.createRangeByElem([ele], true);
+            }
+        } catch (ex) {
+            // 部分情况下会报错，兼容一下
+        }
+    },
     // 创建一个空白（即 &#8203 字符）选区
     createEmptyRange: function createEmptyRange() {
         var editor = this.editor;

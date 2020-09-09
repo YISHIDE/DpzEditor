@@ -128,6 +128,40 @@ API.prototype = {
         selection.addRange(this._currentRange)
     },
 
+    createElementRange: function (ele) {
+        const editor = this.editor
+        const range = this.getRange()
+        let $elem
+
+        if (!range) {
+            // 当前无 range
+            return
+        }
+        if (!this.isSelectionEmpty()) {
+            // 当前选区必须没有内容才可以
+            return
+        }
+
+        try {
+            ele.innerHTML = '&#8203;'
+            // 目前只支持 webkit 内核
+            if (UA.isWebkit()) {
+                // 插入 &#8203
+                // console.log(ele.outerHTML, 'outerHTML')
+                editor.cmd.do('insertHTML', ele.outerHTML)
+                // 修改 offset 位置
+                range.setEnd(range.endContainer, range.endOffset + 1)
+                // 存储
+                this.saveRange(range)
+            } else {
+                // $elem = $('<strong>&#8203;</strong>')
+                editor.cmd.do('insertElem', [ele])
+                this.createRangeByElem([ele], true)
+            }
+        } catch (ex) {
+            // 部分情况下会报错，兼容一下
+        }
+    },
     // 创建一个空白（即 &#8203 字符）选区
     createEmptyRange: function () {
         const editor = this.editor

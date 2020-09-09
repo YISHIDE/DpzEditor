@@ -71,7 +71,6 @@ export function isFunction(fn) {
     return typeof fn === 'function'
 }
 export function isContentditor(node) {
-    console.log(node.getAttribute('contenteditable'))
     if (node.getAttribute('contenteditable') == 'true') {
         return true
     }

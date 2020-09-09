@@ -40,8 +40,8 @@ FontSize.prototype = {
 
     // 执行命令
     _command: function (value) {
-    const editor = this.editor
-    editor.cmd.do('fontSize', value)
+        const editor = this.editor
+        editor.cmd.do('fontSize', value)
     }
 }
 
